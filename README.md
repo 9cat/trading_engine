@@ -1,4 +1,4 @@
-## Haotrader交易撮合引擎
+## Haotrader
   
 <p align="center">
     <img src="https://img.shields.io/github/stars/yzimhao/trading_engine?style=social">
@@ -8,7 +8,7 @@
 	<img src="https://img.shields.io/github/license/yzimhao/trading_engine">
 </p>
 
-  Haotrader交易撮合引擎，适用于各种金融和加密货币交易场景。拥有高性能的订单撮合、实时生成委托深度，以及提供最新成交价格等功能。支持数据持久化，故障重启快速恢复数据。配置灵活，允许用户根据自身需求自定义规则和参数。使用Go开发，跨平台支持，可以在不同操作系统上运行。
+  Haotrader适用于各种金融证券交易场景。拥有高性能的订单撮合、实时生成委托深度，以及提供最新成交价格等功能。支持数据持久化，故障重启快速恢复数据。配置灵活，允许用户根据自身需求自定义规则和参数。使用Go开发，跨平台支持，可以在不同操作系统上运行。
 
 ## 流程
   ![image](https://github.com/yzimhao/trading_engine/blob/master/docs/images/haotrader.png?raw=true)
@@ -19,8 +19,8 @@
 
 
 
-## 功能
-  - [x] 委托深度输出
+## Haotrader功能
+  - [x] 委托深度
   - [x] 限价委托  
   - [x] 市价委托
     - [x] 市价按数量买入/卖出
@@ -41,10 +41,10 @@
   go get github.com/yzimhao/trading_engine
 ```
 ```go
-  var btcusdt *trading_engine.TradePair
+  var object *trading_engine.TradePair
   //初始化交易对，需要设置价格、数量的小数点位数，
   //需要将数字格式化字符串对外展示的时候，用到这两个小数位，统一数字长度
-  btcusdt = trading_engine.NewTradePair("BTC_USDT", 2, 6)
+  object = trading_engine.NewTradePair("symbol", 2, 6)
 
   //买卖订单号最好做一个区分，方便识别订单
   
@@ -53,13 +53,13 @@
   createTime := time.Now().Unix()
   //限价卖单
   item := trading_engine.NewAskLimitItem(uniq, price, quantity, createTime)
-  btcusdt.PushNewOrder(item)
+  object.PushNewOrder(item)
   //市价-按数量卖出
   item = trading_engine.NewAskMarketQtyItem(uniq, quantity, createTime)
-  btcusdt.PushNewOrder(item)
+  object.PushNewOrder(item)
   //市价-按金额卖出,需要用户持有的该资产最大数量
   item = trading_engine.NewAskMarketAmountItem(uniq, amount, maxQty, createTime)
-  btcusdt.PushNewOrder(item)
+  object.PushNewOrder(item)
 
 
   //买单
@@ -67,37 +67,37 @@
   createTime := time.Now().Unix()
   //限价买单
   item := trading_engine.NewBidLimitItem(uniq, price, quantity, createTime)
-  btcusdt.PushNewOrder(item)
+  object.PushNewOrder(item)
   //市价-按数量买单,需要用户可用资金来限制最大买入量
   item = trading_engine.NewBidMarketQtyItem(uniq, quantity, maxAmount, createTime)
-  btcusdt.PushNewOrder(item)
+  object.PushNewOrder(item)
   //市价-按金额买单
   item = trading_engine.NewBidMarketAmountItem(uniq, amount, createTime)
-  btcusdt.PushNewOrder(item)
+  object.PushNewOrder(item)
 
 
   //取消订单, 该操作会将uniq订单号从队列中移除，然后发出一个chan通知在ChCancelResult
   //业务代码可以通过监听取消通知，去做撤单逻辑相关的操作
   if strings.HasPrefix(orderId, "a-") {
-      btcusdt.CancelOrder(trading_engine.OrderSideSell, uniq)
+      object.CancelOrder(trading_engine.OrderSideSell, uniq)
   } else {
-      btcusdt.CancelOrder(trading_engine.OrderSideBuy, uniq)
+      object.CancelOrder(trading_engine.OrderSideBuy, uniq)
   }
 
 
   //获取深度, 参数为深度获取的个数 ["1.0001", "19960"] => [价格，数量]
-  ask := btcusdt.GetAskDepth(10)
-  bid := btcusdt.GetBidDepth(10)
+  ask := object.GetAskDepth(10)
+  bid := object.GetBidDepth(10)
 
 
   //撮合系统有chan通知，监听如下
   for {
     select{
-        case tradelog := <-btcusdt.ChTradeResult:
+        case tradelog := <-object.ChTradeResult:
             //撮合成功，买卖双方订单信息，成交价格、数量等
             //通知结算逻辑...
             ...
-        case orderId := <- btcusdt.ChCancelResult:
+        case orderId := <- object.ChCancelResult:
             //被取消的订单id, 确认队列里面没有了 会有这个通知
             ...
         default:
@@ -112,3 +112,8 @@
 
 ## 相关链接
   <a href="https://www.liaoxuefeng.com/article/1185272483766752" target="_blank">证券交易系统设计与开发</a>
+
+## 声明
+  - 使用本项目需要遵守适用的法律和法规，并对其行为负全责。用户需自行评估并承担使用本项目的风险。
+  - 本项目可能包含漏洞或错误，用户应自行承担检查和修复的责任。用户不得滥用本项目进行非法活动。
+  - 本项目仅供参考和学习之用，不建议将其用于生产环境或重要交易场景。
