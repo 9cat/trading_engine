@@ -103,7 +103,7 @@ func DatabaseInit() *xorm.Engine {
 	return conn
 }
 
-func Deamon(pid string, logfile string) *daemon.Context {
+func Deamon(pid string, logfile string) (*daemon.Context, *os.Process, error) {
 	cntxt := &daemon.Context{
 		PidFileName: pid,
 		PidFilePerm: 0644,
@@ -114,13 +114,6 @@ func Deamon(pid string, logfile string) *daemon.Context {
 		// Args:        ,
 	}
 
-	d, err := cntxt.Reborn()
-	if err != nil {
-		logrus.Fatal("Unable to run: ", err)
-	}
-	if d != nil {
-		return nil
-	}
-	// cntxt.Release()
-	return cntxt
+	child, err := cntxt.Reborn()
+	return cntxt, child, err
 }

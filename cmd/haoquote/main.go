@@ -4,6 +4,7 @@ import (
 	"context"
 	"os"
 
+	"github.com/sevlyar/go-daemon"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"github.com/urfave/cli/v2"
@@ -56,8 +57,23 @@ func main() {
 
 			if ctx.Bool("deamon") {
 				logrus.Info("开始守护进程")
-				d := app.Deamon("haoquote.pid", "")
-				defer d.Release()
+				context, d, err := app.Deamon("haoquote.pid", "")
+				if err != nil {
+					logrus.Fatal("创建守护进程失败, err:", err.Error())
+				}
+				if d != nil {
+					logrus.Printf("这是在父进程的标志")
+					return nil
+				}
+
+				defer func(context *daemon.Context) {
+					err := context.Release()
+					if err != nil {
+						logrus.Printf("释放失败:%s", err.Error())
+					}
+					logrus.Printf("释放成功!!!")
+				}(context)
+
 			}
 
 			db := app.DatabaseInit()
