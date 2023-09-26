@@ -70,8 +70,9 @@ func (t *tengine) broadcast_depth() {
 
 			go func() {
 				tx := context.Background()
-				data := gin.H{
-					"latest_price": t.tp.Price2String(t.tp.LatestPrice()),
+				data := types.ChannelLatestPrice{
+					T:     time.Now().UnixNano(),
+					Price: t.tp.Price2String(t.tp.LatestPrice()),
 				}
 
 				raw, _ := json.Marshal(data)

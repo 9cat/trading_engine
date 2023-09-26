@@ -29,3 +29,8 @@ func (r RedisKey) Format(symbol string) string {
 func (r RedisKey) String() string {
 	return string(r)
 }
+
+type ChannelLatestPrice struct {
+	T     int64  `json:"t"`
+	Price string `json:"price"`
+}

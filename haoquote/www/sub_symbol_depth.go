@@ -120,28 +120,35 @@ func sub_latest_price(symbol string) {
 	pubsub := rdc.PSubscribe(ctx, channel)
 	defer pubsub.Close()
 
+	last := int64(0)
+
 	for {
 		select {
 		case msg := <-pubsub.Channel():
-			var data map[string]string
+			var data types.ChannelLatestPrice
 
 			err := json.Unmarshal([]byte(msg.Payload), &data)
 			if err != nil {
 				logrus.Infof("subscribe: %s data: %s err: %s", channel, msg.Payload, err)
 			}
 
-			symbols_depth.set_latest_price(symbol, data["latest_price"])
-			// websocket前端推送
-			to := types.MsgLatestPrice.Format(symbol)
-			ws.M.Broadcast <- ws.MsgBody{
-				To: to,
-				Response: ws.Response{
-					Type: to,
-					Body: gin.H{
-						"latest_price": data["latest_price"],
+			if data.T > last {
+				symbols_depth.set_latest_price(symbol, data.Price)
+				last = data.T
+
+				// websocket前端推送
+				to := types.MsgLatestPrice.Format(symbol)
+				ws.M.Broadcast <- ws.MsgBody{
+					To: to,
+					Response: ws.Response{
+						Type: to,
+						Body: gin.H{
+							"latest_price": data.Price,
+						},
 					},
-				},
+				}
 			}
+
 		}
 	}
 }

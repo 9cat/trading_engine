@@ -24,7 +24,7 @@ var (
 )
 
 type TradeLog struct {
-	Id            int64      `xorm:"autoincr pk" json:"id"`
+	Id            int64      `xorm:"autoincr pk" json:"-"`
 	Symbol        string     `xorm:"-" json:"-"`
 	TradeAt       int64      `xorm:"notnull" json:"trade_at"`
 	TradePrice    string     `xorm:"decimal(30, 10) notnull" json:"price"`
