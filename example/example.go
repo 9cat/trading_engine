@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gookit/goutil/arrutil"
 	"github.com/redis/go-redis/v9"
 	"github.com/sevlyar/go-daemon"
 
@@ -81,7 +82,14 @@ func startWeb(port string) {
 	web.GET("/api/test_rand", testOrder)
 
 	web.GET("/:symbol", func(c *gin.Context) {
-		symbol := c.Param("symbol")
+		support := []string{"usdjpy", "eurusd"}
+		symbol := strings.ToLower(c.Param("symbol"))
+
+		if !arrutil.Contains(support, symbol) {
+			c.Redirect(301, "/")
+			return
+		}
+
 		c.HTML(200, "demo.html", gin.H{
 			"symbol": symbol,
 		})
