@@ -130,78 +130,75 @@ body{
                
                 <div class="layui-row">
                     <div class="layui-card">
-                        <div class="layui-card-header"><b>下单</b></div>
+                        <div class="layui-card-header"><b>模拟下单</b></div>
                         <div class="layui-card-body">
                             
-                            
-                            <div class="layui-col-md6">
-                                <form class="layui-form" onsubmit="return false">
-                                    <div class="layui-form-item">
-                                        <label class="layui-form-label">订单类型</label>
-                                        <div class="layui-input-block">
-                                            <select name="price_type" lay-filter="price_type">
-                                                <option value="limit" selected>限价单</option>
-                                                <option value="market">市价单</option>
-                                            </select>
+                            <div class="layui-row">
+                                <div class="layui-col-md6">
+                                    <form class="layui-form" onsubmit="return false">
+                                        <div class="layui-form-item">
+                                            <label class="layui-form-label">订单类型</label>
+                                            <div class="layui-input-block">
+                                                <select name="price_type" lay-filter="price_type">
+                                                    <option value="limit" selected>限价单</option>
+                                                    <option value="market">市价单</option>
+                                                </select>
+                                            </div>
                                         </div>
-                                    </div>
-    
-                                    <div class="layui-form-item item-market-type" style="display: none;">
-                                        <label class="layui-form-label"></label>
-                                        <div class="layui-input-block">
-                                            <input type="radio" name="mtype" lay-filter="market-type" value="q" title="按数量"
-                                                checked>
-                                            <input type="radio" name="mtype" lay-filter="market-type" value="a" title="按金额"
-                                                >
+        
+                                        <div class="layui-form-item item-market-type" style="display: none;">
+                                            <label class="layui-form-label"></label>
+                                            <div class="layui-input-block">
+                                                <input type="radio" name="mtype" lay-filter="market-type" value="q" title="按数量"
+                                                    checked>
+                                                <input type="radio" name="mtype" lay-filter="market-type" value="a" title="按金额"
+                                                    >
+                                            </div>
                                         </div>
-                                    </div>
-    
-                                    <div class="layui-form-item item-price">
-                                        <label class="layui-form-label">价格</label>
-                                        <div class="layui-input-block">
-                                            <input type="text" name="price" required lay-verify="required|number"
-                                                placeholder="请输入价格" autocomplete="off" class="layui-input" value="1.00">
+        
+                                        <div class="layui-form-item item-price">
+                                            <label class="layui-form-label">价格</label>
+                                            <div class="layui-input-block">
+                                                <input type="text" name="price" required lay-verify="required|number"
+                                                    placeholder="请输入价格" autocomplete="off" class="layui-input" value="1.00">
+                                            </div>
                                         </div>
-                                    </div>
-    
-    
-                                    <div class="layui-form-item item-quantity">
-                                        <label class="layui-form-label">数量</label>
-                                        <div class="layui-input-inline">
-                                            <input type="text" name="quantity" required lay-verify="required|number"
-                                                placeholder="请输入数量" autocomplete="off" class="layui-input" value="10">
-                                                <span class="qty-tips" style="font-size: 10px; display: none;">市价按数量买入时，需要用户可用资金做限制条件，测试系统默认持有10000块可用资金</span>
+        
+        
+                                        <div class="layui-form-item item-quantity">
+                                            <label class="layui-form-label">数量</label>
+                                            <div class="layui-input-inline">
+                                                <input type="text" name="quantity" required lay-verify="required|number"
+                                                    placeholder="请输入数量" autocomplete="off" class="layui-input" value="10">
+                                                    <span class="qty-tips" style="font-size: 10px; display: none;">市价按数量买入时，需要用户可用资金做限制条件，测试系统默认持有10000块可用资金</span>
+                                            </div>
                                         </div>
-                                    </div>
-    
-                                    <div class="layui-form-item item-amount" style="display: none;">
-                                        <label class="layui-form-label">金额</label>
-                                        <div class="layui-input-inline">
-                                            <input type="text" name="amount" required lay-verify="required|number"
-                                                placeholder="交易金额" autocomplete="off" class="layui-input" value="1000.00">
-                                                <span style="font-size: 10px;">市价按成交额卖出时，需要用户已持有的资产数量做限制条件，测试系统默认持有10000个数量</span>
+        
+                                        <div class="layui-form-item item-amount" style="display: none;">
+                                            <label class="layui-form-label">金额</label>
+                                            <div class="layui-input-inline">
+                                                <input type="text" name="amount" required lay-verify="required|number"
+                                                    placeholder="交易金额" autocomplete="off" class="layui-input" value="1000.00">
+                                                    <span style="font-size: 10px;">市价按成交额卖出时，需要用户已持有的资产数量做限制条件，测试系统默认持有10000个数量</span>
+                                            </div>
                                         </div>
-                                    </div>
-    
-                                    <div class="layui-form-item">
-                                        <div class="layui-input-block">
-                                            <button class="layui-btn layui-btn-danger opt sell">卖出</button>
-                                            <button class="layui-btn opt buy">买入</button>
+        
+                                        <div class="layui-form-item">
+                                            <div class="layui-input-block">
+                                                <button class="layui-btn layui-btn-danger opt sell">卖出</button>
+                                                <button class="layui-btn opt buy">买入</button>
+                                            </div>
                                         </div>
-                                    </div>
-    
-                                    <div class="layui-form-item">
-                                        <div class="layui-input-block">
-                                            <button class="layui-btn layui-btn-normal test-rand sell">随机挂卖10单</button>
-                                            <button class="layui-btn layui-btn-normal test-rand buy">随机挂买10单</button>
+        
+                                        <div class="layui-form-item">
+                                            <div class="layui-input-block">
+                                                <button class="layui-btn layui-btn-normal test-rand sell">随机挂卖10单</button>
+                                                <button class="layui-btn layui-btn-normal test-rand buy">随机挂买10单</button>
+                                            </div>
                                         </div>
-                                    </div>
-                                </form>
+                                    </form>
+                                </div>
                             </div>
-
-
-
-
 
 
                         </div>
