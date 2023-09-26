@@ -151,6 +151,7 @@ func Monitor(symbol string, price_digit, qty_digit int64) {
 
 			//成交日志通知
 			go trade_msg(symbol, row, price_digit, qty_digit)
+			//todo 计算24H涨跌幅
 
 		}()
 

@@ -130,7 +130,7 @@ func trans_record(ctx *gin.Context) {
 	symbol := ctx.Query("symbol")
 	limit := utils.S2Int(ctx.Query("limit"))
 
-	var rows []tradelog.TradeLog
+	rows := make([]tradelog.TradeLog, 0)
 	tl := tradelog.TradeLog{
 		Symbol: symbol,
 	}

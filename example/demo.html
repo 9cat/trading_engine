@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8" />
-    <title>yzimhao/trading_engine 简单使用案例体验</title>
+    <title>Haotrader Demo</title>
     <link crossorigin="anonymous" href="https://cdn.staticfile.org/layui/2.8.17/css/layui.min.css" rel="stylesheet">
 <style>
 body{
@@ -274,7 +274,7 @@ body{
 
             var symbol = "{{ .symbol }}";
             var latest_price = "";
-            var PORT = window.location.port + 1;
+            var PORT = parseInt(window.location.port) + 1;
             var APIHOST = "//"+window.location.hostname+":"+PORT;
             var WSHOST = "ws://"+window.location.hostname+":"+PORT;
             if(symbol=="usdjpy"){
@@ -425,7 +425,7 @@ body{
                 });
 
                 //加载k线
-                $.get(APIHOST + "/api/v1/kline?symbol="+symbol+"&interval=m1", function (d) {
+                $.get(APIHOST + "/api/v1/kline?symbol="+symbol+"&interval=m1&limit=100", function (d) {
                     if (d.ok) {
                         var items = d.data.reverse();
                         var chartDataList = items.map(function (data) {
@@ -442,6 +442,13 @@ body{
                     }
                 });
 
+                //depth
+                $.get(APIHOST + "/api/v1/depth?symbol="+symbol+"&limit=10", function(d){
+                    if(d.ok){
+                        renderdepth(d.data);
+                    }
+                })
+
             });
 
 
@@ -456,6 +463,21 @@ body{
                         $(".log-item").last().remove();
                     }
                     logView.after(html);
+                });
+            }
+
+            function renderdepth(info) {
+                var askTpl = $("#depth-ask-tpl").html()
+                    , askView = $(".depth-ask")
+                    , bidTpl = $("#depth-bid-tpl").html()
+                    , bidView = $(".depth-bid");
+
+
+                laytpl(askTpl).render(info.asks.reverse(), function (html) {
+                    askView.html(html);
+                });
+                laytpl(bidTpl).render(info.bids, function (html) {
+                    bidView.html(html);
                 });
             }
 
@@ -491,23 +513,9 @@ body{
                             var msg = JSON.parse(messages[i]);
                             console.log(msg);
                             if (msg.type == "depth."+symbol) {
-                                var info = msg.body;
-                                var askTpl = $("#depth-ask-tpl").html()
-                                    , askView = $(".depth-ask")
-                                    , bidTpl = $("#depth-bid-tpl").html()
-                                    , bidView = $(".depth-bid");
-
-
-                                laytpl(askTpl).render(info.asks.reverse(), function (html) {
-                                    askView.html(html);
-                                });
-                                laytpl(bidTpl).render(info.bids, function (html) {
-                                    bidView.html(html);
-                                });
-
+                                renderdepth(msg.body);
                             } else if (msg.type == "tradelog." +symbol) {
                                 rendertradelog(msg.body);
-                                
                             } else if (msg.type == "new_order."+ symbol) {
                                 var myorderView = $(".myorder"),
                                     myorderTpl = $("#myorder-tpl").html();

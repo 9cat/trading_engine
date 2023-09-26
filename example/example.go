@@ -152,17 +152,17 @@ func newOrder(c *gin.Context) {
 		param.MaxAmount = "0"
 		param.MaxQty = "0"
 
-		if price.Cmp(decimal.NewFromFloat(100000000)) > 0 || price.Cmp(decimal.Zero) < 0 {
+		if price.Cmp(decimal.NewFromFloat(2000)) > 0 || price.Cmp(decimal.Zero) < 0 {
 			c.JSON(200, gin.H{
 				"ok":    false,
-				"error": "价格必须大于等于0，且不能超过 100000000",
+				"error": "价格必须大于等于0，且不能超过 2000",
 			})
 			return
 		}
-		if quantity.Cmp(decimal.NewFromFloat(100000000)) > 0 || quantity.Cmp(decimal.Zero) <= 0 {
+		if quantity.Cmp(decimal.NewFromFloat(1000)) > 0 || quantity.Cmp(decimal.Zero) <= 0 {
 			c.JSON(200, gin.H{
 				"ok":    false,
-				"error": "数量必须大于0，且不能超过 100000000",
+				"error": "数量必须大于0，且不能超过 1000",
 			})
 			return
 		}
