@@ -59,13 +59,30 @@ release: clean dist
 	# @make build_windows_amd64
 
 
-build_example: clean dist
+app_example:
 	mkdir -p $(distdir)/trading_engine_example
 	cd example && GOOS=linux GOARCH=amd64 go build -o ../$(distdir)/trading_engine_example/example example.go
 	cp -rf example/statics $(distdir)/trading_engine_example/
 	upx -9 $(distdir)/trading_engine_example/example
 	cp -rf example/demo.html $(distdir)/trading_engine_example/
 	scp -r $(distdir)/trading_engine_example/ demo:~/
+
+
+pubdemo:
+	@make clean
+	@make dist
+	@make build_linux_amd64
+	@make app_example
+	scp $(distdir)/haotrader.$(version).linux-amd64.tar.gz demo:~/
+	ssh demo "tar xzvf haotrader.$(version).linux-amd64.tar.gz"
+	ssh demo 'kill `cat haotrader/haotrader.pid`'
+	ssh demo 'kill `cat haotrader/haoquote.pid`'
+	ssh demo 'cd haotrader/ && ./haotrader -d'
+	ssh demo 'cd haotrader/ && ./haoquote -d'
+	ssh demo 'cd trading_engine_example/ && kill `cat run.pid`'
+	ssh demo 'cd trading_engine_example/ && ./example -d -port=20001'
+	ssh demo 'rm -f haotrader.$(version).linux-amd64.tar.gz'
+	
 
 
 
