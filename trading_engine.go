@@ -206,8 +206,7 @@ func (t *TradePair) handlerLimitOrder() {
 			} else if bidTop.GetQuantity().Cmp(askTop.GetQuantity()) == -1 {
 				curTradeQty = bidTop.GetQuantity()
 			}
-			// askTop.SetQuantity(askTop.GetQuantity().Sub(curTradeQty))
-			// bidTop.SetQuantity(bidTop.GetQuantity().Sub(curTradeQty))
+
 			t.askQueue.SetQuantity(askTop, askTop.GetQuantity().Sub(curTradeQty))
 			t.bidQueue.SetQuantity(bidTop, bidTop.GetQuantity().Sub(curTradeQty))
 
@@ -217,7 +216,8 @@ func (t *TradePair) handlerLimitOrder() {
 				curTradePrice = askTop.GetPrice()
 			}
 
-			go t.sendTradeResultNotify(askTop, bidTop, curTradePrice, curTradeQty, "")
+			// todo 使用协程会导致成交日志成交时间错乱
+			t.sendTradeResultNotify(askTop, bidTop, curTradePrice, curTradeQty, time.Now().UnixNano(), "")
 			return true
 		} else {
 			return false
@@ -277,9 +277,9 @@ func (t *TradePair) doMarketBuy(item QueueItem) {
 				// c.剩余资金已经不能达到最小成交需求
 				if t.askQueue.Len() == 0 || item.GetQuantity().Equal(decimal.Zero) ||
 					maxQty(item.GetAmount(), t.askQueue.Top().GetPrice(), item.GetQuantity()).Cmp(t.miniTradeQty) < 0 {
-					t.sendTradeResultNotify(ask, item, ask.GetPrice(), curTradeQty, item.GetUniqueId())
+					t.sendTradeResultNotify(ask, item, ask.GetPrice(), curTradeQty, time.Now().UnixNano(), item.GetUniqueId())
 				} else {
-					t.sendTradeResultNotify(ask, item, ask.GetPrice(), curTradeQty, "")
+					t.sendTradeResultNotify(ask, item, ask.GetPrice(), curTradeQty, time.Now().UnixNano(), "")
 				}
 
 				return true
@@ -321,9 +321,9 @@ func (t *TradePair) doMarketBuy(item QueueItem) {
 				// c.剩余资金已经不能达到最小成交需求
 				if t.askQueue.Len() == 0 || item.GetQuantity().Equal(decimal.Zero) ||
 					maxQty(item.GetAmount(), t.askQueue.Top().GetPrice()).Cmp(t.miniTradeQty) < 0 {
-					t.sendTradeResultNotify(ask, item, ask.GetPrice(), curTradeQty, item.GetUniqueId())
+					t.sendTradeResultNotify(ask, item, ask.GetPrice(), curTradeQty, time.Now().UnixNano(), item.GetUniqueId())
 				} else {
-					t.sendTradeResultNotify(ask, item, ask.GetPrice(), curTradeQty, "")
+					t.sendTradeResultNotify(ask, item, ask.GetPrice(), curTradeQty, time.Now().UnixNano(), "")
 				}
 				return true
 			}
@@ -370,9 +370,9 @@ func (t *TradePair) doMarketSell(item QueueItem) {
 				// a.对面订单空了
 				// b.市价订单完全成交了
 				if t.bidQueue.Len() == 0 || item.GetQuantity().Equal(decimal.Zero) {
-					t.sendTradeResultNotify(item, bid, bid.GetPrice(), curTradeQuantity, item.GetUniqueId())
+					t.sendTradeResultNotify(item, bid, bid.GetPrice(), curTradeQuantity, time.Now().UnixNano(), item.GetUniqueId())
 				} else {
-					t.sendTradeResultNotify(item, bid, bid.GetPrice(), curTradeQuantity, "")
+					t.sendTradeResultNotify(item, bid, bid.GetPrice(), curTradeQuantity, time.Now().UnixNano(), "")
 				}
 
 				return true
@@ -411,9 +411,9 @@ func (t *TradePair) doMarketSell(item QueueItem) {
 				// b.金额完全成交
 				// c.剩余资金不满足最小成交量
 				if t.bidQueue.Len() == 0 || maxQty(item.GetAmount(), t.bidQueue.Top().GetPrice(), item.GetQuantity()).Cmp(t.miniTradeQty) < 0 {
-					t.sendTradeResultNotify(item, bid, bid.GetPrice(), curTradeQty, item.GetUniqueId())
+					t.sendTradeResultNotify(item, bid, bid.GetPrice(), curTradeQty, time.Now().UnixNano(), item.GetUniqueId())
 				} else {
-					t.sendTradeResultNotify(item, bid, bid.GetPrice(), curTradeQty, "")
+					t.sendTradeResultNotify(item, bid, bid.GetPrice(), curTradeQty, time.Now().UnixNano(), "")
 				}
 
 				return true
@@ -429,15 +429,15 @@ func (t *TradePair) doMarketSell(item QueueItem) {
 	}
 }
 
-func (t *TradePair) sendTradeResultNotify(ask, bid QueueItem, price, tradeQty decimal.Decimal, market_done string) {
+func (t *TradePair) sendTradeResultNotify(ask, bid QueueItem, price, tradeQty decimal.Decimal, trade_at int64, market_done string) {
 	tradelog := TradeResult{}
 	tradelog.Symbol = t.Symbol
 	tradelog.AskOrderId = ask.GetUniqueId()
 	tradelog.BidOrderId = bid.GetUniqueId()
 	tradelog.TradeQuantity = tradeQty
 	tradelog.TradePrice = price
-	tradelog.TradeTime = time.Now().UnixNano() //精确到纳秒
-	tradelog.MarketDone = market_done          //标记市价订单已经完成，结算时候碰到这条成交记录，特殊处理
+	tradelog.TradeTime = trade_at     //精确到纳秒
+	tradelog.MarketDone = market_done //标记市价订单已经完成，结算时候碰到这条成交记录，特殊处理
 
 	t.latestPrice = price
 
