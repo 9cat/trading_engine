@@ -13,6 +13,7 @@ import (
 
 	_ "github.com/yzimhao/trading_engine/docs/api" // main 文件中导入 docs 包
 	"github.com/yzimhao/trading_engine/utils"
+	"github.com/yzimhao/trading_engine/utils/app"
 
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -61,6 +62,7 @@ func web_router(router *gin.Engine) {
 		api.GET("/depth", symbol_depth)
 		api.GET("/trans/record", trans_record)
 		api.GET("/kline", kline)
+		api.GET("/system", system_info)
 	}
 }
 
@@ -225,4 +227,11 @@ func kline(ctx *gin.Context) {
 	}
 
 	utils.ResponseOkJson(ctx, data)
+}
+
+func system_info(ctx *gin.Context) {
+	ctx.JSON(200, gin.H{
+		"version": app.Version,
+		"build":   app.Build,
+	})
 }

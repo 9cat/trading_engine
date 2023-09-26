@@ -119,7 +119,7 @@ body{
     </div>
 
     <div class="main ">
-        <div class="layui-row" style="line-height: 20px; height: 20px;"></div>
+        <div class="header layui-row" style="line-height: 20px; height: 20px;"></div>
 
         <div class="layui-row">
             <div class="layui-col-md7">
@@ -251,6 +251,10 @@ body{
             </div>
         </div>
 
+
+        <div class="footer layui-row" style="height: 30px; line-height: 30px; text-align: center; vertical-align: bottom;">
+            <p>Version: <i class="version"></i> Build: <i class="build"></i></p>
+        </div>
     </div>
 
 
@@ -444,7 +448,14 @@ body{
                     if(d.ok){
                         renderdepth(d.data);
                     }
-                })
+                });
+
+
+                $.get(APIHOST + "/api/v1/system", function(d){
+                    console.log(d);
+                    $(".version").html(d.version);
+                    $(".build").html(d.build);
+                });
 
             });
 

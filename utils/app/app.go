@@ -19,7 +19,7 @@ import (
 )
 
 var (
-	Version   = ""
+	Version   = "v0.0.0"
 	Goversion = ""
 	Commit    = ""
 	Build     = ""
