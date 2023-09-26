@@ -436,9 +436,8 @@ func (t *TradePair) sendTradeResultNotify(ask, bid QueueItem, price, tradeQty de
 	tradelog.BidOrderId = bid.GetUniqueId()
 	tradelog.TradeQuantity = tradeQty
 	tradelog.TradePrice = price
-	tradelog.TradeTime = time.Now().UnixMilli() //精确到毫秒
-	// tradelog.TradeAmount = tradeQty.Mul(price)
-	tradelog.MarketDone = market_done //标记市价订单已经完成，结算时候碰到这条成交记录，特殊处理
+	tradelog.TradeTime = time.Now().UnixNano() //精确到纳秒
+	tradelog.MarketDone = market_done          //标记市价订单已经完成，结算时候碰到这条成交记录，特殊处理
 
 	t.latestPrice = price
 

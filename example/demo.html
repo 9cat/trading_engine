@@ -454,7 +454,7 @@ body{
                     logTpl = $("#trade-log-tpl").html();
 
                 
-                data['trade_at'] = formatTime(data.trade_at);
+                data['trade_at'] = formatTime(data.trade_at/1e6);
                 laytpl(logTpl).render(data, function (html) {
                     if ($(".log-item").length > 12) {
                         $(".log-item").last().remove();

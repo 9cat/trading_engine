@@ -33,7 +33,7 @@ type Period struct {
 }
 
 func NewPeriod(symbol string, p PeriodType, tl trading_engine.TradeResult) *Period {
-	tradetime := time.Unix(int64(tl.TradeTime/1000), 0)
+	tradetime := time.Unix(int64(tl.TradeTime/1e9), 0)
 	logrus.Infof("trade_time: %s", utils.Time(tradetime).Format())
 	open_at, close_at := get_start_end_time(tradetime, p)
 
