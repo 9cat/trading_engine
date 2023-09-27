@@ -35,7 +35,6 @@ func NewPeriod(symbol string, p PeriodType, tl trading_engine.TradeResult) *Peri
 	open_at, close_at := get_start_end_time(tradetime, p)
 
 	cache := newCache()
-	defer cache.Close()
 
 	data := Period{}
 	ckey := periodKey.Format(p, symbol, open_at.Unix(), close_at.Unix())

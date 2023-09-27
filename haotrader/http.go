@@ -57,9 +57,8 @@ func db_stats(ctx *gin.Context) {
 
 	for symbol, _ := range teps {
 		queue[symbol] = map[string]any{
-			"AsksLength":  teps[symbol].AskLen(),
-			"BidsLength":  teps[symbol].BidLen(),
-			"LatestPrice": teps[symbol].LatestPrice().String(),
+			"AsksLength": teps[symbol].AskLen(),
+			"BidsLength": teps[symbol].BidLen(),
 		}
 	}
 

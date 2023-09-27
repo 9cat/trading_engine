@@ -16,18 +16,24 @@ const (
 	periodKey    periodCachekey = "period_%s_%s_%d_%d" //"period_usdjpy_mn_1695571200_1696175999"
 )
 
+var (
+	cacheobj *filecache.Storage
+)
+
 func (c periodCachekey) Format(pt PeriodType, symbol string, st, et int64) string {
 	return fmt.Sprintf(string(c), symbol, pt, st, et)
 }
 
 func newCache() *filecache.Storage {
-	return filecache.NewStorage(viper.GetString("haoquote.storage_path"), 10)
+	if cacheobj == nil {
+		cacheobj = filecache.NewStorage(viper.GetString("haoquote.storage_path"), 10)
+	}
+	return cacheobj
 }
 
 func GetYesterdayClose(symbol string) (string, bool) {
 	now := time.Now()
 	cache := newCache()
-	defer cache.Close()
 
 	//获取昨天的收盘价，如果没有则获取今天的开盘价
 	st, et := get_start_end_time(now.AddDate(0, 0, -1), PERIOD_D1)
@@ -42,7 +48,6 @@ func GetYesterdayClose(symbol string) (string, bool) {
 func GetTodayOpen(symbol string) (string, bool) {
 	now := time.Now()
 	cache := newCache()
-	defer cache.Close()
 
 	st, et := get_start_end_time(now, PERIOD_D1)
 	key := periodKey.Format(PERIOD_D1, symbol, st.Unix(), et.Unix())

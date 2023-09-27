@@ -70,16 +70,15 @@ func (t *tengine) broadcast_depth() {
 
 			go func() {
 				tx := context.Background()
+
+				price, at := t.tp.LatestPrice()
 				data := types.ChannelLatestPrice{
-					T:     time.Now().UnixNano(),
-					Price: t.tp.Price2String(t.tp.LatestPrice()),
+					T:     at,
+					Price: t.tp.Price2String(price),
 				}
 
 				raw, _ := json.Marshal(data)
-				err := rdc.Publish(tx, price_channel, raw).Err()
-				if err != nil {
-					logrus.Warnf("广播%s消息失败: %s", price_channel, err)
-				}
+				rdc.Publish(tx, price_channel, raw).Err()
 			}()
 
 		default:
