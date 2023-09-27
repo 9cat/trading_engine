@@ -6,7 +6,13 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/shopspring/decimal"
 )
+
+func D(a string) decimal.Decimal {
+	d, _ := decimal.NewFromString(a)
+	return d
+}
 
 func S2Int(a string) int {
 	v, _ := strconv.ParseInt(a, 10, 64)

@@ -222,7 +222,7 @@ body{
                     </table>
 
                     <div class="layui-row" style="background-color: #F6F6F6; height: 60px;">
-                        <div style="text-align: center; color:red; height: 60px; line-height: 60px;">最新价 <span class="latest-price">-</span></div>
+                        <div style="text-align: center; color:red; height: 60px; line-height: 60px;">最新价 <span class="latest-price">-</span> / 日涨跌：<i class="price_p"></i>%</div>
                     </div>
     
                     
@@ -508,6 +508,7 @@ body{
                                 "tradelog." + symbol,
                                 "latest_price."+symbol,
                                 "kline.m1."+symbol,
+                                "market.24h."+symbol,
                             ],
                         };
                         console.log(JSON.stringify(msg));
@@ -550,6 +551,8 @@ body{
                                     close: +data[4],
                                     volume: Math.ceil(+data[5]),
                                 });
+                            }else if(msg.type=="market.24h."+symbol) {
+                                $(".price_p").html(msg.body.price_change_percent);
                             }
                         }
                     };

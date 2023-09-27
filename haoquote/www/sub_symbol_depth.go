@@ -147,6 +147,9 @@ func sub_latest_price(symbol string) {
 						},
 					},
 				}
+
+				//计算24H涨跌幅
+				market_24h(symbol, data.Price)
 			}
 
 		}

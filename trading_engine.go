@@ -216,8 +216,7 @@ func (t *TradePair) handlerLimitOrder() {
 				curTradePrice = askTop.GetPrice()
 			}
 
-			// todo 使用协程会导致成交日志成交时间错乱
-			t.sendTradeResultNotify(askTop, bidTop, curTradePrice, curTradeQty, time.Now().UnixNano(), "")
+			go t.sendTradeResultNotify(askTop, bidTop, curTradePrice, curTradeQty, time.Now().UnixNano(), "")
 			return true
 		} else {
 			return false

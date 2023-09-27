@@ -118,8 +118,8 @@ func Monitor(symbol string, price_digit, qty_digit int64) {
 
 			// todo 更多的period
 			for _, curp := range period.Periods() {
-				func(cp period.PeriodType) {
-					if !arrutil.StringsHas(needPeriods, string(curp)) {
+				go func(cp period.PeriodType) {
+					if !arrutil.StringsHas(needPeriods, string(cp)) {
 						return
 					}
 
@@ -150,15 +150,13 @@ func Monitor(symbol string, price_digit, qty_digit int64) {
 			}
 
 			//成交日志通知
-			go trade_msg(symbol, row, price_digit, qty_digit)
-			//todo 计算24H涨跌幅
-
+			tradelog_msg(symbol, row, price_digit, qty_digit)
 		}()
 
 	}
 }
 
-func trade_msg(symbol string, data TradeLog, pd, qd int64) {
+func tradelog_msg(symbol string, data TradeLog, pd, qd int64) {
 	data.TradePrice = utils.NumberFix(data.TradePrice, int(pd))
 	data.TradeAmount = utils.NumberFix(data.TradeAmount, int(pd))
 	data.TradeQuantity = utils.NumberFix(data.TradeQuantity, int(qd))
@@ -174,10 +172,9 @@ func trade_msg(symbol string, data TradeLog, pd, qd int64) {
 }
 
 func save_db(row *period.Period) error {
-	err := row.CreateTable(db)
-	if err != nil {
-		return err
-	}
+	row.CreateTable(db)
+
+	var err error
 	exist, _ := db.Table(row.TableName()).Where("open_at=?", row.OpenAt.Format()).Exist()
 	if exist {
 		_, err = db.Table(row.TableName()).Where("open_at=?", row.OpenAt.Format()).Update(row)

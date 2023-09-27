@@ -7,10 +7,8 @@ import (
 
 	"github.com/shopspring/decimal"
 	"github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 	"github.com/yzimhao/trading_engine"
 	"github.com/yzimhao/trading_engine/utils"
-	"github.com/yzimhao/trading_engine/utils/filecache"
 	"xorm.io/xorm"
 )
 
@@ -28,29 +26,26 @@ type Period struct {
 	UpdateTime    utils.Time                 `xorm:"timestamp updated" json:"-"`
 	Interval      PeriodType                 `xorm:"-" json:"-"`
 	raw           trading_engine.TradeResult `xorm:"-" json:"-"`
-	lastOpenTime  int64                      `xorm:"-" json:"last_open_time"`
-	lastCloseTime int64                      `xorm:"-" json:"last_close_time"`
+	LastOpenTime  int64                      `xorm:"-" json:"last_open_time"`
+	LastCloseTime int64                      `xorm:"-" json:"last_close_time"`
 }
 
 func NewPeriod(symbol string, p PeriodType, tl trading_engine.TradeResult) *Period {
 	tradetime := time.Unix(int64(tl.TradeTime/1e9), 0)
-	logrus.Infof("trade_time: %s", utils.Time(tradetime).Format())
 	open_at, close_at := get_start_end_time(tradetime, p)
 
-	db := filecache.NewStorage(viper.GetString("haoquote.storage_path"), 10)
-	defer db.Close()
+	cache := newCache()
+	defer cache.Close()
 
 	data := Period{}
-	key := fmt.Sprintf("period_%d_%d", open_at.Unix(), close_at.Unix())
-	cache, _ := db.Get("period", key)
-	json.Unmarshal(cache, &data)
+	ckey := periodKey.Format(p, symbol, open_at.Unix(), close_at.Unix())
+	cache_data, _ := cache.Get(periodBucket, ckey)
+	json.Unmarshal(cache_data, &data)
 
-	//将计算结果写入缓存
 	defer func() {
-		logrus.Infof("data: %#v", data)
 		raw, err := json.Marshal(data)
-		logrus.Infof("set cache: %s %s", raw, err)
-		db.Set("period", key, raw)
+		logrus.Infof("set %s cache: %s %s", ckey, raw, err)
+		cache.Set("period", ckey, raw)
 	}()
 
 	data.raw = tl
@@ -101,6 +96,7 @@ func (p *Period) CreateTable(db *xorm.Engine) error {
 }
 
 func (p *Period) get_open() {
+	logrus.Infof("get_open: %#v", p)
 	if p.Open == "" {
 		p.Open = p.raw.TradePrice.String()
 		p.High = p.raw.TradePrice.String()
@@ -108,10 +104,11 @@ func (p *Period) get_open() {
 		p.Close = p.raw.TradePrice.String()
 		p.Volume = p.raw.TradeQuantity.String()
 		p.Amount = p.raw.TradePrice.Mul(p.raw.TradeQuantity).String()
+		p.LastOpenTime = p.raw.TradeTime
 	}
-	if p.raw.TradeTime < p.lastOpenTime {
+	if p.raw.TradeTime < p.LastOpenTime {
 		p.Open = p.raw.TradePrice.String()
-		p.lastOpenTime = p.raw.TradeTime
+		p.LastOpenTime = p.raw.TradeTime
 	}
 }
 
@@ -128,9 +125,9 @@ func (p *Period) get_low() {
 }
 
 func (p *Period) get_close() {
-	if p.raw.TradeTime > p.lastCloseTime {
+	if p.raw.TradeTime > p.LastCloseTime {
 		p.Close = p.raw.TradePrice.String()
-		p.lastCloseTime = p.raw.TradeTime
+		p.LastCloseTime = p.raw.TradeTime
 	}
 }
 

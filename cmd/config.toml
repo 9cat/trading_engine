@@ -22,7 +22,7 @@ dsn = "./test.sqlite.db"
 # dsn = "host=localhost port=15432 user=postgres password=postgres dbname=test sslmode=disable"
 
 
-show_sql = true
+show_sql = false
 
 
 [haotrader]
