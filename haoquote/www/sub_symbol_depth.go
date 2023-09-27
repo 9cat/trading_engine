@@ -132,7 +132,8 @@ func sub_latest_price(symbol string) {
 				logrus.Infof("subscribe: %s data: %s err: %s", channel, msg.Payload, err)
 			}
 
-			if data.T > last {
+			// logrus.Infof("last: %d now: %d %s", last, data.T, data.Price)
+			if data.T >= last {
 				symbols_depth.set_latest_price(symbol, data.Price)
 				last = data.T
 
@@ -142,8 +143,9 @@ func sub_latest_price(symbol string) {
 					To: to,
 					Response: ws.Response{
 						Type: to,
-						Body: gin.H{
+						Body: map[string]any{
 							"latest_price": data.Price,
+							"at":           data.T,
 						},
 					},
 				}
