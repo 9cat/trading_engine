@@ -118,7 +118,7 @@ func Monitor(symbol string, price_digit, qty_digit int64) {
 
 			// todo 更多的period
 			for _, curp := range period.Periods() {
-				go func(cp period.PeriodType) {
+				func(cp period.PeriodType) {
 					if !arrutil.StringsHas(needPeriods, string(cp)) {
 						return
 					}
@@ -174,12 +174,15 @@ func tradelog_msg(symbol string, data TradeLog, pd, qd int64) {
 func save_db(row *period.Period) error {
 	row.CreateTable(db)
 
+	sess := db.NewSession()
+	defer sess.Close()
+
 	var err error
-	exist, _ := db.Table(row.TableName()).Where("open_at=?", row.OpenAt.Format()).Exist()
+	exist, _ := sess.Table(row.TableName()).Where("open_at=?", row.OpenAt.Format()).Exist()
 	if exist {
-		_, err = db.Table(row.TableName()).Where("open_at=?", row.OpenAt.Format()).Update(row)
+		_, err = sess.Table(row.TableName()).Where("open_at=?", row.OpenAt.Format()).ForUpdate().Update(row)
 	} else {
-		_, err = db.Table(row.TableName()).Insert(row)
+		_, err = sess.Table(row.TableName()).Insert(row)
 	}
 	return err
 }

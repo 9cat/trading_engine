@@ -12,15 +12,19 @@ type Storage struct {
 	db *bolt.DB
 }
 
-func NewStorage(filename string, timeout time.Duration) *Storage {
-	db, err := bolt.Open(filename, 0600, &bolt.Options{Timeout: timeout * time.Second})
-	if err != nil {
-		logrus.Panic(fmt.Sprintf("打开%s %s", filename, err))
-	}
+var obj *Storage
 
-	return &Storage{
-		db: db,
+func NewStorage(filename string, timeout time.Duration) *Storage {
+	if obj == nil {
+		db, err := bolt.Open(filename, 0600, &bolt.Options{Timeout: timeout * time.Second})
+		if err != nil {
+			logrus.Panic(fmt.Sprintf("打开%s %s", filename, err))
+		}
+		obj = &Storage{
+			db: db,
+		}
 	}
+	return obj
 }
 
 func (s *Storage) Close() {

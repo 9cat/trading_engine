@@ -30,8 +30,8 @@ type Period struct {
 	LastCloseTime int64                      `xorm:"-" json:"last_close_time"`
 }
 
-func NewPeriod(symbol string, p PeriodType, tl trading_engine.TradeResult) *Period {
-	tradetime := time.Unix(int64(tl.TradeTime/1e9), 0)
+func NewPeriod(symbol string, p PeriodType, tr trading_engine.TradeResult) *Period {
+	tradetime := time.Unix(int64(tr.TradeTime/1e9), 0)
 	open_at, close_at := get_start_end_time(tradetime, p)
 
 	cache := newCache()
@@ -41,13 +41,14 @@ func NewPeriod(symbol string, p PeriodType, tl trading_engine.TradeResult) *Peri
 	cache_data, _ := cache.Get(periodBucket, ckey)
 	json.Unmarshal(cache_data, &data)
 
+	logrus.Infof("get %s cache: [open:%s heigh:%s low:%s close:%s cur_price:%s]", ckey, data.Open, data.High, data.Low, data.Close, tr.TradePrice.String())
 	defer func() {
-		raw, err := json.Marshal(data)
-		logrus.Infof("set %s cache: %s %s", ckey, raw, err)
+		raw, _ := json.Marshal(data)
+		logrus.Infof("set %s cache: [open:%s heigh:%s low:%s close:%s cur_price:%s]", ckey, data.Open, data.High, data.Low, data.Close, tr.TradePrice.String())
 		cache.Set("period", ckey, raw)
 	}()
 
-	data.raw = tl
+	data.raw = tr
 	data.Interval = p
 	data.Symbol = symbol
 	data.OpenAt = utils.Time(open_at)
@@ -95,7 +96,6 @@ func (p *Period) CreateTable(db *xorm.Engine) error {
 }
 
 func (p *Period) get_open() {
-	logrus.Infof("get_open: %#v", p)
 	if p.Open == "" {
 		p.Open = p.raw.TradePrice.String()
 		p.High = p.raw.TradePrice.String()
