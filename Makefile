@@ -76,8 +76,8 @@ pubdemo:
 	@make app_example
 	scp $(distdir)/haotrader.$(version).linux-amd64.tar.gz demo:~/
 	ssh demo "tar xzvf haotrader.$(version).linux-amd64.tar.gz"
-	@make example_reload
 	ssh demo 'rm -f haotrader.$(version).linux-amd64.tar.gz'
+	@make example_reload
 
 
 example_reload:
