@@ -75,14 +75,21 @@ pubdemo:
 	@make app_example
 	scp $(distdir)/haotrader.$(version).linux-amd64.tar.gz demo:~/
 	ssh demo "tar xzvf haotrader.$(version).linux-amd64.tar.gz"
-	ssh demo 'kill `cat haotrader/haotrader.pid`'
+	@make example_reload
+	ssh demo 'rm -f haotrader.$(version).linux-amd64.tar.gz'
+
+example_reload:
+   	ssh demo 'kill `cat haotrader/haotrader.pid`'
 	ssh demo 'kill `cat haotrader/haoquote.pid`'
 	ssh demo 'cd haotrader/ && ./haotrader -d'
 	ssh demo 'cd haotrader/ && ./haoquote -d'
 	ssh demo 'cd trading_engine_example/ && kill `cat run.pid`'
 	ssh demo 'cd trading_engine_example/ && ./example -d -port=20001'
-	ssh demo 'rm -f haotrader.$(version).linux-amd64.tar.gz'
-	
+
+example_clean:
+	ssh demo 'cd haotrader/ && rm -f ./*.db'
+	@make example_reload
+
 
 
 
