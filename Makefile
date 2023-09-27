@@ -78,8 +78,10 @@ pubdemo:
 	@make example_reload
 	ssh demo 'rm -f haotrader.$(version).linux-amd64.tar.gz'
 
+
 example_reload:
-   	ssh demo 'kill `cat haotrader/haotrader.pid`'
+   	
+	ssh demo 'kill `cat haotrader/haotrader.pid`'
 	ssh demo 'kill `cat haotrader/haoquote.pid`'
 	ssh demo 'cd haotrader/ && ./haotrader -d'
 	ssh demo 'cd haotrader/ && ./haoquote -d'
@@ -87,6 +89,7 @@ example_reload:
 	ssh demo 'cd trading_engine_example/ && ./example -d -port=20001'
 
 example_clean:
+
 	ssh demo 'cd haotrader/ && rm -f ./*.db'
 	@make example_reload
 
