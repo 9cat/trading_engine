@@ -240,7 +240,7 @@ func testOrder(c *gin.Context) {
 				OrderType: "limit",
 				Side:      op,
 				Price:     price,
-				Qty:       randDecimal(1, 3).String(),
+				Qty:       "1",
 				At:        time.Now().UnixNano(),
 			}
 			push_redis(symbol, data.Json())

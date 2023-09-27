@@ -98,11 +98,13 @@ func (p *Period) CreateTable(db *xorm.Engine) error {
 func (p *Period) get_open() {
 	if p.Open == "" {
 		p.Open = p.raw.TradePrice.String()
-		p.High = p.raw.TradePrice.String()
-		p.Low = p.raw.TradePrice.String()
-		p.Close = p.raw.TradePrice.String()
-		p.Volume = p.raw.TradeQuantity.String()
-		p.Amount = p.raw.TradePrice.Mul(p.raw.TradeQuantity).String()
+		p.High = p.Open
+		p.Low = p.Open
+		p.Close = p.Open
+
+		p.Volume = "0"
+		p.Amount = "0"
+
 		p.LastOpenTime = p.raw.TradeTime
 	}
 	if p.raw.TradeTime < p.LastOpenTime {

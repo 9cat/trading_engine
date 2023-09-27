@@ -66,6 +66,7 @@ app_example:
 	upx -9 $(distdir)/trading_engine_example/example
 	cp -rf example/demo.html $(distdir)/trading_engine_example/
 	scp -r $(distdir)/trading_engine_example/ demo:~/
+	@make example_reload
 
 
 pubdemo:
